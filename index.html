@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Seed Atlas</title>
+  <style>
+    :root {
+      --bg: #101810;
+      --panel: #1b281c;
+      --green: #65c466;
+      --text: #edf5e9;
+      --muted: #a4b5a1;
+      --border: #344a35;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+    }
+
+     header {
+      min-height: 300px;
+      padding: 48px 24px;
+      border-bottom: 2px solid var(--border);
+      background:
+        linear-gradient(rgba(10, 20, 12, 0.10), rgba(10, 20, 12, 0.20)),
+        url("atlas-banner.png") center 50% / cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 58px);
+      color: #a5f078;
+      text-shadow: 2px 3px 6px #000;
+    }
+
+    header p {
+      color: #ffffff;
+      font-size: clamp(15px, 2vw, 21px);
+      text-shadow: 2px 2px 5px #000;
+      margin-bottom: 0;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 24px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    h2 { margin-top: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 11px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: #101810;
+      color: var(--text);
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 11px 15px;
+      background: var(--green);
+      color: #102010;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(1.1); }
+
+    button.secondary {
+      background: #344a35;
+      color: var(--text);
+    }
+
+    button.danger {
+      background: #592c2c;
+      color: white;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .world-list, .pin-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .world-card, .pin-card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #152016;
+    }
+
+    .world-card h3, .pin-card h3 { margin: 0 0 8px; }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      margin: 2px;
+      border-radius: 5px;
+      background: #2b422d;
+      color: #b8edb8;
+      font-size: 12px;
+    }
+
+    .empty {
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 9px;
+    }
+
+    #status {
+      min-height: 22px;
+      color: var(--green);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      main { padding: 14px; }
+      header { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+    <header>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>🗺️ Add a World</h2>
+      <form id="worldForm">
+        <div class="grid">
+          <div>
+            <label for="worldName">World name</label>
+            <input id="worldName" required placeholder="e.g. Grind Mode">
+          </div>
+          <div>
+            <label for="seed">World seed</label>
+            <input id="seed" required placeholder="Enter your seed">
+          </div>
+          <div>
+            <label for="edition">Edition</label>
+            <select id="edition">
+              <option>Java</option>
+              <option>Bedrock</option>
+            </select>
+          </div>
+          <div>
+            <label for="version">Minecraft version</label>
+            <input id="version" placeholder="e.g. 1.21">
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit">Save World</button>
+        </div>
+      </form>
+      <div id="status" role="status"></div>
+    </section>
+
+    <section class="panel">
+      <h2>📚 Your Worlds</h2>
+      <div id="worldList" class="world-list"></div>
+    </section>
+
+    <section class="panel">
+      <h2>📍 Save a Location</h2>
+      <p class="muted">Select a world and save coordinates for places you discover.</p>
+
+      <form id="pinForm">
+        <div class="grid">
+          <div>
+            <label for="pinWorld">World</label>
+            <select id="pinWorld" required></select>
+          </div>
+          <div>
+            <label for="pinName">Location name</label>
+            <input id="pinName" required placeholder="Village, Base, Stronghold">
+          </div>
+          <div>
+            <label for="pinType">Location type</label>
+            <select id="pinType">
+              <option>Base</option>
+              <option>Village</option>
+              <option>Stronghold</option>
+              <option>Ancient City</option>
+              <option>Trial Chamber</option>
+              <option>Nether Portal</option>
+              <option>Mine</option>
+              <option>Biome</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="pinX">X coordinate</label>
+            <input id="pinX" type="number" required placeholder="250">
+          </div>
+          <div>
+            <label for="pinY">Y coordinate (optional)</label>
+            <input id="pinY" type="number" placeholder="64">
+          </div>
+          <div>
+            <label for="pinZ">Z coordinate</label>
+            <input id="pinZ" type="number" required placeholder="-430">
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <label for="pinNotes">Notes</label>
+          <textarea id="pinNotes" placeholder="Loot, resources, dangers..."></textarea>
+        </div>
+        <div class="actions">
+          <button type="submit">Save Location</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>🧭 Saved Locations</h2>
+      <div class="grid" style="margin-bottom:14px">
+        <div>
+          <label for="filterWorld">Filter by world</label>
+          <select id="filterWorld">
+            <option value="all">All Worlds</option>
+          </select>
+        </div>
+        <div>
+          <label for="search">Search locations</label>
+          <input id="search" placeholder="Search names, types, notes...">
+        </div>
+      </div>
+      <div id="pinList" class="pin-list"></div>
+    </section>
+
+    <section class="panel">
+      <h2>💾 </h2>
+ <label for="mapWorld">Select world for seed map</label>
+<select id="mapWorld">
+  <option value="">-- Choose a world --</option>
+</select>
+
+<div class="actions">
+  <button type="button" onclick="openSeedMap()">
+    Open Minecraft Seed Map
+  </button>
+</div>
+      <p class="muted">
+        Your data is stored in this browser on this computer.
+        Export backups regularly to protect it.
+      </p>
+      <div class="actions">
+        <button id="exportBtn" type="button">Export Backup</button>
+        <button id="importBtn" type="button" class="secondary">Import Backup</button>
+        <input id="importFile" type="file" accept=".json,application/json" hidden>
+      </div>
+    </section>
+  </main>
+  <script>
+const STORAGE_KEY = "minecraft-seed-atlas-v1";
+let data = loadData();
+let selectedPinId = null;
+function loadData() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved && Array.isArray(saved.worlds) &&
+        Array.isArray(saved.pins)) return saved;
+  } catch (error) {
+    console.error(error);
+  }
+  return { worlds: [], pins: [] };
+}
+ function openSeedMap(world, x = 0, z = 0) {
+  // If no world was passed in, use the world selected in the map dropdown.
+  if (!world) {
+    const selectedWorldId =
+      document.getElementById("mapWorld").value;
+
+    world = getWorld(selectedWorldId);
+  }
+
+  if (!world || !world.seed) {
+    alert("Select a world with a saved seed first.");
+    return;
+  }
+
+  const url =
+    "https://www.chunkbase.com/apps/seed-map#seed=" +
+    encodeURIComponent(world.seed) +
+    "&x=" + encodeURIComponent(x) +
+    "&z=" + encodeURIComponent(z);
+
+  window.open(url, "_blank");
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    alert("Could not save data. Check browser storage.");
+  }
+}
+
+function makeId() {
+  return Date.now().toString(36) +
+    Math.random().toString(36).slice(2, 9);
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function showStatus(message) {
+  const status = document.getElementById("status");
+  status.textContent = message;
+}
+
+function getWorld(id) {
+  return data.worlds.find(world => world.id === id);
+}
+
+function renderWorlds() {
+  const list = document.getElementById("worldList");
+const pinWorld = document.getElementById("pinWorld");
+const filter = document.getElementById("filterWorld");
+const mapWorld = document.getElementById("mapWorld");
+const previousPinWorld = pinWorld.value;
+const previousFilter = filter.value;
+const previousMapWorld = mapWorld.value;
+
+  if (!data.worlds.length) {
+    list.innerHTML =
+      '<div class="empty">No worlds yet. Add your first world above.</div>';
+  } else {
+    list.innerHTML = data.worlds.map(world => {
+      const count = data.pins.filter(pin =>
+        pin.worldId === world.id
+      ).length;
+
+      return `
+        <article class="world-card">
+          <h3>${escapeHTML(world.name)}</h3>
+          <p class="muted">
+            ${escapeHTML(world.edition)} Edition
+            ${world.version ? " · " + escapeHTML(world.version) : ""}
+          </p>
+          <p>Seed: <strong>${escapeHTML(world.seed)}</strong></p>
+          <span class="tag">${count} saved location(s)</span>
+          <div class="actions">
+            <button type="button" class="secondary"
+              data-action="copy-seed" data-id="${world.id}">
+              Copy Seed
+            </button>
+            <button type="button" class="danger"
+              data-action="delete-world" data-id="${world.id}">
+              Delete World
+            </button>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  pinWorld.innerHTML = data.worlds.map(world =>
+    `<option value="${world.id}">${escapeHTML(world.name)}</option>`
+  ).join("");
+
+  if (data.worlds.some(w => w.id === previousPinWorld)) {
+    pinWorld.value = previousPinWorld;
+  }
+ mapWorld.innerHTML =
+    '<option value="">-- Choose a world --</option>' +
+    data.worlds.map(world =>
+      `<option value="${world.id}">${escapeHTML(world.name)}</option>`
+    ).join("");
+
+  if (data.worlds.some(w => w.id === previousMapWorld)) {
+    mapWorld.value = previousMapWorld;
+  }
+  filter.innerHTML =
+    '<option value="all">All Worlds</option>' +
+    data.worlds.map(world =>
+      `<option value="${world.id}">${escapeHTML(world.name)}</option>`
+    ).join("");
+
+  if (previousFilter === "all" ||
+      data.worlds.some(w => w.id === previousFilter)) {
+    filter.value = previousFilter;
+  }
+}
+
+function renderPins() {
+  const list = document.getElementById("pinList");
+  const filter = document.getElementById("filterWorld").value;
+  const query = document.getElementById("search").value
+    .trim().toLowerCase();
+
+  const pins = data.pins.filter(pin => {
+    const world = getWorld(pin.worldId);
+    const text = [
+      pin.name, pin.type, pin.notes,
+      pin.x, pin.y, pin.z,
+      world ? world.name : ""
+    ].join(" ").toLowerCase();
+
+    return (filter === "all" || pin.worldId === filter) &&
+      text.includes(query);
+  });
+
+  if (!pins.length) {
+    list.innerHTML =
+      '<div class="empty">No matching locations. Save a location to get started.</div>';
+    return;
+  }
+
+  list.innerHTML = pins.map(pin => {
+    const world = getWorld(pin.worldId);
+    const coords = `${pin.x}, ${pin.y === "" ? "?" : pin.y}, ${pin.z}`;
+
+    return `
+      <article class="pin-card"
+  onclick="openSeedMap(getWorld('${pin.worldId}'), ${Number(pin.x) || 0}, ${Number(pin.z) || 0})"
+  style="cursor:pointer">
+        <span class="tag">${escapeHTML(pin.type)}</span>
+        <h3>${escapeHTML(pin.name)}</h3>
+        <p class="muted">${escapeHTML(world ? world.name : "Unknown world")}</p>
+        <p>Coordinates: <strong>${escapeHTML(coords)}</strong></p>
+        ${pin.notes
+          ? `<p>${escapeHTML(pin.notes).replace(/\n/g, "<br>")}</p>`
+          : ""}
+        <div class="actions">
+          <button type="button" class="secondary"
+            data-action="copy-coords" data-id="${pin.id}">
+            Copy Coordinates
+          </button>
+          <button type="button" class="danger"
+            data-action="delete-pin" data-id="${pin.id}">
+            Delete Location
+          </button>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function render() {
+  renderWorlds();
+  renderPins();
+
+  const hasWorlds = data.worlds.length > 0;
+  document.getElementById("pinForm")
+    .querySelector("button").disabled = !hasWorlds;
+  document.getElementById("pinWorld").disabled = !hasWorlds;
+}
+
+document.getElementById("worldForm")
+  .addEventListener("submit", event => {
+    event.preventDefault();
+
+    const world = {
+      id: makeId(),
+      name: document.getElementById("worldName").value.trim(),
+      seed: document.getElementById("seed").value.trim(),
+      edition: document.getElementById("edition").value,
+      version: document.getElementById("version").value.trim()
+    };
+
+    if (!world.name || !world.seed) return;
+
+    data.worlds.push(world);
+    saveData();
+    event.target.reset();
+    render();
+    document.getElementById("pinWorld").value = world.id;
+    showStatus("World saved successfully.");
+  });
+
+document.getElementById("pinForm")
+  .addEventListener("submit", event => {
+    event.preventDefault();
+
+    const worldId = document.getElementById("pinWorld").value;
+    if (!getWorld(worldId)) {
+      showStatus("Add a world before saving a location.");
+      return;
+    }
+
+    data.pins.push({
+      id: makeId(),
+      worldId,
+      name: document.getElementById("pinName").value.trim(),
+      type: document.getElementById("pinType").value,
+      x: document.getElementById("pinX").value,
+      y: document.getElementById("pinY").value,
+      z: document.getElementById("pinZ").value,
+      notes: document.getElementById("pinNotes").value.trim()
+    });
+
+    saveData();
+    event.target.reset();
+    render();
+    showStatus("Location saved successfully.");
+  });
+
+document.getElementById("filterWorld")
+  .addEventListener("change", renderPins);
+
+document.getElementById("search")
+  .addEventListener("input", renderPins);
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showStatus("Copied to clipboard.");
+  } catch (error) {
+    window.prompt("Copy this text:", text);
+  }
+}
+document.getElementById("pinList").addEventListener("click", event => {
+  if (event.target.closest("button")) return;
+
+  const card = event.target.closest(".pin-card");
+  if (!card) return;
+
+  selectedPinId = card.dataset.pinId;
+
+  document.querySelectorAll(".pin-card").forEach(item => {
+    item.style.borderColor =
+      item === card ? "var(--green)" : "var(--border)";
+  });
+
+  const pin = data.pins.find(item => item.id === selectedPinId);
+
+  if (pin) {
+    showStatus("Selected location: " + pin.name);
+  }
+});
+document.addEventListener("click", async event => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+
+  const { action, id } = button.dataset;
+
+  if (action === "copy-seed") {
+    const world = getWorld(id);
+    if (world) await copyText(world.seed);
+  }
+
+  if (action === "copy-coords") {
+    const pin = data.pins.find(item => item.id === id);
+    if (pin) {
+      await copyText(
+        `${pin.x} ${pin.y === "" ? "?" : pin.y} ${pin.z}`
+      );
+    }
+  }
+
+  if (action === "delete-world") {
+    const world = getWorld(id);
+    if (!world) return;
+
+    if (!confirm(
+      `Delete "${world.name}" and all its saved locations?`
+    )) return;
+
+    data.worlds = data.worlds.filter(item => item.id !== id);
+    data.pins = data.pins.filter(pin => pin.worldId !== id);
+    saveData();
+    render();
+    showStatus("World deleted.");
+  }
+
+  if (action === "delete-pin") {
+    if (!confirm("Delete this saved location?")) return;
+
+    data.pins = data.pins.filter(pin => pin.id !== id);
+    saveData();
+    renderPins();
+    renderWorlds();
+    showStatus("Location deleted.");
+  }
+});
+</script>
+<script>
+document.getElementById("exportBtn")
+  .addEventListener("click", () => {
+    const blob = new Blob(
+      [JSON.stringify(data, null, 2)],
+      { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "minecraft-seed-atlas-backup.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    showStatus("Backup exported.");
+  });
+
+const importFile = document.getElementById("importFile");
+
+document.getElementById("importBtn")
+  .addEventListener("click", () => {
+    importFile.click();
+  });
+
+importFile.addEventListener("change", async () => {
+  const file = importFile.files[0];
+  if (!file) return;
+
+  try {
+    const imported = JSON.parse(await file.text());
+
+    if (!imported ||
+        !Array.isArray(imported.worlds) ||
+        !Array.isArray(imported.pins) ||
+        !imported.worlds.every(w =>
+          w && typeof w.id === "string" &&
+          typeof w.name === "string" &&
+          typeof w.seed === "string"
+        ) ||
+        !imported.pins.every(p =>
+          p && typeof p.id === "string" &&
+          typeof p.worldId === "string"
+        )) {
+      throw new Error("Invalid backup format");
+    }
+
+    if (!confirm(
+      "Import this backup? It will replace your current atlas data."
+    )) return;
+
+    data = imported;
+    saveData();
+    render();
+    showStatus("Backup imported successfully.");
+  } catch (error) {
+    alert("Could not import that file. Choose a valid Atlas backup.");
+  } finally {
+    importFile.value = "";
+  }
+});
+
+render();
+</script>
+</body>
+</html>
