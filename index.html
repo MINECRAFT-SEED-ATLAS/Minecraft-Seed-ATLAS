@@ -4,311 +4,414 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minecraft Seed Atlas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #101810;
-      --panel: #1b281c;
-      --green: #65c466;
-      --text: #edf5e9;
-      --muted: #a4b5a1;
-      --border: #344a35;
+      --ink: #1e2d25;
+      --forest: #203d31;
+      --forest-light: #315746;
+      --leaf: #d3e890;
+      --rust: #c96e4c;
+      --copper: #b87333;
+      --copper-light: #d49154;
+      --copper-dark: #75451f;
+      --paper: #f3f2e9;
+      --paper-deep: #e7e8dc;
+      --muted: #68766d;
+      --line: #9da88a;
+      --stone-dark: #495247;
+      --stone-light: #6a705e;
+      --moss: #718848;
+      --stone-outline: #171d19;
+      --white: #ffffff;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, sans-serif;
+      background-color: #17251e;
+      background-image:
+        linear-gradient(rgba(13, 25, 17, .36), rgba(13, 25, 17, .36)),
+        url("atlas-background.webp");
+      background-position: center center;
+      background-size: cover;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: var(--ink);
+      font-family: "Atkinson Hyperlegible", "Trebuchet MS", system-ui, sans-serif;
     }
 
-     header {
-      min-height: 300px;
-      padding: 48px 24px;
-      border-bottom: 2px solid var(--border);
-      background:
-        linear-gradient(rgba(10, 20, 12, 0.10), rgba(10, 20, 12, 0.20)),
-        url("atlas-banner.png") center 50% / cover no-repeat;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
+    button, input, select, textarea { font: inherit; }
+
+    .site-header {
+      overflow: hidden;
+      background: #10251a;
+      border-bottom: 4px solid var(--leaf);
     }
 
-    header h1 {
-      margin: 0;
-      font-size: clamp(32px, 5vw, 58px);
-      color: #a5f078;
-      text-shadow: 2px 3px 6px #000;
+    .site-banner { display: block; width: 100%; max-height: 320px; object-fit: cover; object-position: center; }
+    .eyebrow, .summary-label {
+      margin: 0 0 6px;
+      color: var(--forest-light);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
-    header p {
-      color: #ffffff;
-      font-size: clamp(15px, 2vw, 21px);
-      text-shadow: 2px 2px 5px #000;
-      margin-bottom: 0;
-    }
+    h2, h3 { font-family: "Atkinson Hyperlegible", "Trebuchet MS", system-ui, sans-serif; }
+    h2 { margin: 0; font-size: 22px; }
 
     main {
-      max-width: 1100px;
+      max-width: 1240px;
       margin: auto;
-      padding: 24px;
+      padding: 24px 30px 48px;
     }
 
+    .utility-bar, .actions { display: flex; flex-wrap: wrap; gap: 9px; }
+    .utility-bar { justify-content: flex-end; padding: 0 0 16px; }
     .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
+      --surface: #202523;
+      min-width: 0;
+      padding: 16px;
+      position: relative;
+      isolation: isolate;
+      border: 10px solid transparent;
+      border-radius: 0;
+      background-image:
+        linear-gradient(var(--surface), var(--surface)),
+        repeating-linear-gradient(90deg, transparent 0 30px, rgba(24, 29, 25, .6) 30px 32px, transparent 32px 64px),
+        repeating-linear-gradient(0deg, transparent 0 22px, rgba(24, 29, 25, .75) 22px 24px, transparent 24px 48px),
+        repeating-conic-gradient(var(--stone-light) 0 25%, var(--stone-dark) 0 50%);
+      background-origin: padding-box, border-box, border-box, border-box;
+      background-clip: padding-box, border-box, border-box, border-box;
+      background-size: auto, 64px 48px, 64px 48px, 64px 48px;
+      color: #f2f3e9;
+      box-shadow: 0 0 0 2px var(--stone-outline), 0 5px 0 rgba(0, 0, 0, .45);
     }
 
-    h2 { margin-top: 0; }
+    .panel::before, .world-card::before, .pin-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        linear-gradient(var(--moss), var(--moss)) left top / 24px 6px no-repeat,
+        linear-gradient(var(--moss), var(--moss)) left top / 6px 22px no-repeat,
+        linear-gradient(#879956, #879956) 10px 6px / 9px 5px no-repeat,
+        linear-gradient(var(--moss), var(--moss)) right top / 22px 6px no-repeat,
+        linear-gradient(var(--moss), var(--moss)) right top / 6px 20px no-repeat,
+        linear-gradient(#879956, #879956) right 9px top 7px / 8px 5px no-repeat,
+        linear-gradient(var(--moss), var(--moss)) left bottom / 22px 6px no-repeat,
+        linear-gradient(var(--moss), var(--moss)) left bottom / 6px 18px no-repeat,
+        linear-gradient(#879956, #879956) left 9px bottom 7px / 8px 5px no-repeat,
+        linear-gradient(var(--moss), var(--moss)) right bottom / 24px 6px no-repeat,
+        linear-gradient(var(--moss), var(--moss)) right bottom / 6px 22px no-repeat,
+        linear-gradient(#879956, #879956) right 10px bottom 7px / 9px 5px no-repeat;
+    }
 
-    .grid {
+    .panel > *, .world-card > *, .pin-card > * { position: relative; z-index: 2; }
+
+    .sidebar > .panel { --surface: #19331f; }
+    .main-column > .panel { --surface: #202523; }
+    .sidebar > .map-panel { --surface: #203d31; }
+    .collapsible-panel { padding: 0; overflow: hidden; }
+    .collapsible-panel > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0;
+      padding: 16px 18px;
+      cursor: pointer;
+      list-style: none;
+    }
+    .collapsible-panel > summary::-webkit-details-marker { display: none; }
+    .collapsible-panel > summary::after { content: "+"; color: var(--forest); font-size: 20px; font-weight: 700; }
+    .collapsible-panel[open] > summary { margin-bottom: 16px; }
+    .collapsible-panel[open] > summary::after { content: "-"; }
+    .collapsible-panel > summary:focus-visible { outline: 3px solid var(--rust); outline-offset: -3px; }
+    .collapsible-panel > .world-list,
+    .collapsible-panel > .grid,
+    .collapsible-panel > #pinList,
+    .collapsible-panel > #status { margin-right: 18px; margin-left: 18px; }
+    .collapsible-panel > #pinList { margin-bottom: 18px; }
+    .collapsible-panel > #status { margin-top: 10px; }
+
+    .atlas-layout {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
+      grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+      align-items: start;
+      gap: 20px;
     }
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--muted);
-      font-size: 14px;
+    .sidebar, .main-column { display: grid; gap: 14px; min-width: 0; }
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
+    .section-heading .eyebrow { margin-bottom: 4px; }
+    .world-list, .pin-list { display: grid; gap: 10px; }
+    .pin-list { grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); }
+
+    .world-card, .pin-card {
+      --surface: #202523;
+      min-width: 0;
+      position: relative;
+      isolation: isolate;
+      padding: 10px;
+      border: 7px solid transparent;
+      border-radius: 0;
+      background-image:
+        linear-gradient(var(--surface), var(--surface)),
+        repeating-linear-gradient(90deg, transparent 0 26px, rgba(24, 29, 25, .6) 26px 28px, transparent 28px 56px),
+        repeating-linear-gradient(0deg, transparent 0 18px, rgba(24, 29, 25, .75) 18px 20px, transparent 20px 40px),
+        repeating-conic-gradient(var(--stone-light) 0 25%, var(--stone-dark) 0 50%);
+      background-origin: padding-box, border-box, border-box, border-box;
+      background-clip: padding-box, border-box, border-box, border-box;
+      background-size: auto, 56px 40px, 56px 40px, 56px 40px;
+      color: #f2f3e9;
+      box-shadow: 0 0 0 2px var(--stone-outline), 0 3px 0 rgba(0, 0, 0, .4);
+    }
+
+    .world-card { --surface: #465b35; }
+    .world-card h3, .pin-card h3 { margin: 0 0 6px; font-size: 18px; }
+    .world-card p, .pin-card p { margin: 7px 0; overflow-wrap: anywhere; }
+    .world-card .actions { margin-top: 12px; }
+    .pin-card { cursor: pointer; transition: border-color .15s, transform .15s; }
+    .pin-card:hover { filter: brightness(1.12); transform: translateY(-2px); }
+    .pin-card:focus-visible { outline: 3px solid var(--rust); outline-offset: 2px; }
+
+    .muted { color: #c4c9bd; font-size: 13px; }
+    .panel .eyebrow, .panel .summary-label { color: #d3e890; }
+    .panel label { color: #e6e9df; }
+    .panel button.secondary { border-color: #858b79; background: #343a36; color: #ffffff; }
+    .panel button.secondary:hover { background: #4c554a; }
+    .tag, .count-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 3px;
+      background: #d3e890;
+      color: #1e2d25;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .count-badge { background: var(--leaf); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .location-toolbar { grid-template-columns: minmax(0, 1fr) minmax(180px, .7fr); margin-bottom: 14px; }
+
+    label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
     input, textarea, select {
       width: 100%;
-      padding: 11px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
-      background: #101810;
-      color: var(--text);
-      font: inherit;
+      min-height: 42px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: var(--white);
+      color: var(--ink);
     }
 
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
+    #worldName::placeholder,
+    #seed::placeholder { font-size: 13px; }
+    input:focus, textarea:focus, select:focus { outline: 2px solid var(--forest-light); outline-offset: 1px; }
+    textarea { min-height: 72px; resize: vertical; }
 
     button {
-      border: 0;
-      border-radius: 7px;
-      padding: 11px 15px;
-      background: var(--green);
-      color: #102010;
+      min-height: 38px;
+      padding: 9px 12px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      background: var(--forest);
+      color: var(--white);
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    button:hover { filter: brightness(1.1); }
+    button:hover { background: var(--forest-light); }
+    button:focus-visible { outline: 3px solid var(--rust); outline-offset: 2px; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    button.primary { background: var(--rust); color: white; }
+    button.primary:hover { background: #a9573a; }
+    button.copper-button {
+      border-color: var(--copper-dark);
+      background: linear-gradient(180deg, var(--copper-light), var(--copper));
+      color: #ffffff;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .25), 0 2px var(--copper-dark);
+    }
+    button.copper-button:hover { background: linear-gradient(180deg, #e0a267, #c17a3b); }
+    button.secondary { border-color: var(--line); background: transparent; color: var(--forest); }
+    button.secondary:hover { background: var(--paper-deep); }
+    .utility-bar button.secondary { border-color: var(--leaf); background: var(--leaf); color: #1e2d25; }
+    .utility-bar button.secondary:hover { background: #e4efbc; }
+    button.danger { background: #8b4036; color: white; }
+    button.delete-texture {
+      border-color: #53281d;
+      background-image:
+        linear-gradient(rgba(35, 18, 12, .32), rgba(35, 18, 12, .32)),
+        url("delete-ingot-button.png");
+      background-position: center;
+      background-size: cover;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .9);
+      box-shadow: inset 0 1px rgba(255, 255, 255, .18), 0 2px #53281d;
+    }
+    button.delete-texture:hover {
+      background-image:
+        linear-gradient(rgba(35, 18, 12, .18), rgba(35, 18, 12, .18)),
+        url("delete-ingot-button.png");
+      filter: brightness(1.08);
+    }
+    .actions { margin-top: 12px; }
 
-    button.secondary {
-      background: #344a35;
-      color: var(--text);
+    .composer { padding: 0; overflow: hidden; }
+    .composer summary {
+      min-height: 52px;
+      padding: 15px 17px;
+      color: #f2f3e9;
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
     }
 
-    button.danger {
-      background: #592c2c;
-      color: white;
-    }
+    .composer summary::-webkit-details-marker { display: none; }
+    .composer summary::after { content: "+"; float: right; color: var(--rust); font-size: 18px; line-height: 16px; }
+    .composer[open] summary::after { content: "-"; }
+    .composer form { padding: 0 17px 17px; }
+    .composer .eyebrow { margin-top: 2px; }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .world-list, .pin-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .world-card, .pin-card {
-      padding: 16px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: #152016;
-    }
-
-    .world-card h3, .pin-card h3 { margin: 0 0 8px; }
-
-    .muted {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .tag {
-      display: inline-block;
-      padding: 3px 8px;
-      margin: 2px;
-      border-radius: 5px;
-      background: #2b422d;
-      color: #b8edb8;
-      font-size: 12px;
-    }
+    .map-panel .eyebrow { color: var(--leaf); }
+    .map-panel h2 { margin-bottom: 14px; }
+    .map-panel label { color: #ffffff; }
+    .map-panel select { background: #f8f8ef; }
+    .map-panel .muted { color: #ffffff; }
 
     .empty {
-      padding: 20px;
+      grid-column: 1 / -1;
+      padding: 24px 16px;
+      border: 1px dashed var(--line);
+      color: #e0e5d8;
       text-align: center;
-      color: var(--muted);
-      border: 1px dashed var(--border);
-      border-radius: 9px;
     }
 
-    #status {
-      min-height: 22px;
-      color: var(--green);
-      margin-top: 10px;
+    #status { min-height: 20px; margin: 10px 0 0; color: var(--leaf); font-size: 13px; }
+    .storage-note { margin: 0 auto 0 0; align-self: center; color: #d7dfd4; font-size: 13px; }
+
+    @media (max-width: 760px) {
+      main { padding: 18px 14px 32px; }
+      .utility-bar { padding-bottom: 14px; }
+      .atlas-layout { grid-template-columns: 1fr; }
+      .sidebar { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 600px) {
-      main { padding: 14px; }
-      header { padding: 18px; }
+    @media (max-width: 520px) {
+      .sidebar, .grid, .location-toolbar { grid-template-columns: 1fr; }
+      .world-panel { grid-row: auto; }
+      .pin-list { grid-template-columns: 1fr; }
+      .panel { padding: 12px; }
+      .collapsible-panel { padding: 0; }
+      .collapsible-panel > summary { padding: 14px; }
+      .collapsible-panel > .world-list,
+      .collapsible-panel > .grid,
+      .collapsible-panel > #pinList,
+      .collapsible-panel > #status { margin-right: 14px; margin-left: 14px; }
+      .composer { padding: 0; }
+      .composer form { padding: 0 14px 14px; }
     }
   </style>
 </head>
 <body>
-    <header>
+  <header class="site-header">
+    <img class="site-banner" src="atlas-banner.png" alt="Minecraft Seed Atlas: your world, your seeds, every important location">
   </header>
 
   <main>
-    <section class="panel">
-      <h2>🗺️ Add a World</h2>
-      <form id="worldForm">
-        <div class="grid">
-          <div>
-            <label for="worldName">World name</label>
-            <input id="worldName" required placeholder="e.g. Grind Mode">
-          </div>
-          <div>
-            <label for="seed">World seed</label>
-            <input id="seed" required placeholder="Enter your seed">
-          </div>
-          <div>
-            <label for="edition">Edition</label>
-            <select id="edition">
-              <option>Java</option>
-              <option>Bedrock</option>
-            </select>
-          </div>
-          <div>
-            <label for="version">Minecraft version</label>
-            <input id="version" placeholder="e.g. 1.21">
-          </div>
-        </div>
-        <div class="actions">
-          <button type="submit">Save World</button>
-        </div>
-      </form>
-      <div id="status" role="status"></div>
-    </section>
+    <div class="utility-bar">
+      <p class="storage-note">Atlas data is saved in this browser. Export a backup to move or protect it.</p>
+      <button id="exportBtn" type="button">Export backup</button>
+      <button id="importBtn" type="button" class="secondary">Import backup</button>
+      <input id="importFile" type="file" accept=".json,application/json" hidden>
+    </div>
+    <div class="atlas-layout">
+      <aside class="sidebar" aria-label="World library and tools">
+        <section class="panel map-panel">
+          <p class="eyebrow">Explore</p>
+          <h2>Seed map</h2>
+          <label for="mapWorld">Choose a world</label>
+          <select id="mapWorld"><option value="">Choose a world</option></select>
+          <div class="actions"><button type="button" class="primary copper-button" onclick="openSeedMap()">Open seed map</button></div>
+        </section>
 
-    <section class="panel">
-      <h2>📚 Your Worlds</h2>
-      <div id="worldList" class="world-list"></div>
-    </section>
+        <details id="worldComposer" class="panel composer">
+          <summary>Add a world</summary>
+          <form id="worldForm">
+            <div class="grid">
+              <div><label for="worldName">World name</label><input id="worldName" required placeholder="e.g. Grind Mode"></div>
+              <div><label for="seed">World seed</label><input id="seed" required placeholder="Enter your seed"></div>
+              <div><label for="edition">Edition</label><select id="edition"><option>Java</option><option>Bedrock</option></select></div>
+              <div><label for="version">Minecraft version</label><input id="version" placeholder="e.g. 1.21"></div>
+            </div>
+            <div class="actions"><button type="submit" class="primary">Save world</button></div>
+          </form>
+        </details>
 
-    <section class="panel">
-      <h2>📍 Save a Location</h2>
-      <p class="muted">Select a world and save coordinates for places you discover.</p>
+        <details class="panel collapsible-panel world-panel" open>
+          <summary class="section-heading">
+            <div><p class="eyebrow">Library</p><h2>Your worlds</h2></div>
+            <span id="worldCount" class="count-badge">0</span>
+          </summary>
+          <div id="worldList" class="world-list"></div>
+        </details>
+      </aside>
 
-      <form id="pinForm">
-        <div class="grid">
-          <div>
-            <label for="pinWorld">World</label>
-            <select id="pinWorld" required></select>
-          </div>
-          <div>
-            <label for="pinName">Location name</label>
-            <input id="pinName" required placeholder="Village, Base, Stronghold">
-          </div>
-          <div>
-            <label for="pinType">Location type</label>
-            <select id="pinType">
-              <option>Base</option>
-              <option>Village</option>
-              <option>Stronghold</option>
-              <option>Ancient City</option>
-              <option>Trial Chamber</option>
-              <option>Nether Portal</option>
-              <option>Mine</option>
-              <option>Biome</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div>
-            <label for="pinX">X coordinate</label>
-            <input id="pinX" type="number" required placeholder="250">
-          </div>
-          <div>
-            <label for="pinY">Y coordinate (optional)</label>
-            <input id="pinY" type="number" placeholder="64">
-          </div>
-          <div>
-            <label for="pinZ">Z coordinate</label>
-            <input id="pinZ" type="number" required placeholder="-430">
-          </div>
-        </div>
-        <div style="margin-top:14px">
-          <label for="pinNotes">Notes</label>
-          <textarea id="pinNotes" placeholder="Loot, resources, dangers..."></textarea>
-        </div>
-        <div class="actions">
-          <button type="submit">Save Location</button>
-        </div>
-      </form>
-    </section>
+      <div class="main-column">
+        <details id="locationComposer" class="panel composer" open>
+          <summary>Save a location</summary>
+          <form id="pinForm">
+            <div class="grid">
+              <div><label for="pinWorld">World</label><select id="pinWorld" required></select></div>
+              <div><label for="pinName">Location name</label><input id="pinName" required placeholder="Village, Base, Stronghold"></div>
+              <div><label for="pinType">Location type</label><select id="pinType"><option>Base</option><option>Village</option><option>Stronghold</option><option>Ancient City</option><option>Trial Chamber</option><option>Nether Portal</option><option>Mine</option><option>Biome</option><option>Other</option></select></div>
+              <div><label for="pinX">X coordinate</label><input id="pinX" type="number" required placeholder="250"></div>
+              <div><label for="pinY">Y coordinate (optional)</label><input id="pinY" type="number" placeholder="64"></div>
+              <div><label for="pinZ">Z coordinate</label><input id="pinZ" type="number" required placeholder="-430"></div>
+            </div>
+            <div style="margin-top:12px"><label for="pinNotes">Notes</label><textarea id="pinNotes" placeholder="Loot, resources, dangers..."></textarea></div>
+            <div class="actions">
+              <button id="savePinBtn" type="submit" class="primary copper-button">Save location</button>
+              <button id="cancelEditBtn" type="button" class="secondary" hidden>Cancel edit</button>
+            </div>
+          </form>
+        </details>
 
-    <section class="panel">
-      <h2>🧭 Saved Locations</h2>
-      <div class="grid" style="margin-bottom:14px">
-        <div>
-          <label for="filterWorld">Filter by world</label>
-          <select id="filterWorld">
-            <option value="all">All Worlds</option>
-          </select>
-        </div>
-        <div>
-          <label for="search">Search locations</label>
-          <input id="search" placeholder="Search names, types, notes...">
-        </div>
+        <details class="panel collapsible-panel location-panel" open>
+          <summary class="section-heading">
+            <div><p class="eyebrow">Field notes</p><h2>Saved locations</h2></div>
+            <span id="pinCount" class="count-badge">0</span>
+          </summary>
+          <div class="grid location-toolbar">
+            <div><label for="search">Search locations</label><input id="search" placeholder="Name, type, notes, coordinates..."></div>
+            <div><label for="filterWorld">World</label><select id="filterWorld"><option value="all">All worlds</option></select></div>
+          </div>
+          <div id="pinList" class="pin-list"></div>
+          <p id="status" role="status" aria-live="polite"></p>
+        </details>
       </div>
-      <div id="pinList" class="pin-list"></div>
-    </section>
-
-    <section class="panel">
-      <h2>💾 </h2>
- <label for="mapWorld">Select world for seed map</label>
-<select id="mapWorld">
-  <option value="">-- Choose a world --</option>
-</select>
-
-<div class="actions">
-  <button type="button" onclick="openSeedMap()">
-    Open Minecraft Seed Map
-  </button>
-</div>
-      <p class="muted">
-        Your data is stored in this browser on this computer.
-        Export backups regularly to protect it.
-      </p>
-      <div class="actions">
-        <button id="exportBtn" type="button">Export Backup</button>
-        <button id="importBtn" type="button" class="secondary">Import Backup</button>
-        <input id="importFile" type="file" accept=".json,application/json" hidden>
-      </div>
-    </section>
+    </div>
   </main>
   <script>
 const STORAGE_KEY = "minecraft-seed-atlas-v1";
 let data = loadData();
-let selectedPinId = null;
+let editingPinId = null;
 function loadData() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -376,12 +479,14 @@ function getWorld(id) {
 
 function renderWorlds() {
   const list = document.getElementById("worldList");
-const pinWorld = document.getElementById("pinWorld");
-const filter = document.getElementById("filterWorld");
-const mapWorld = document.getElementById("mapWorld");
-const previousPinWorld = pinWorld.value;
-const previousFilter = filter.value;
-const previousMapWorld = mapWorld.value;
+  const pinWorld = document.getElementById("pinWorld");
+  const filter = document.getElementById("filterWorld");
+  const mapWorld = document.getElementById("mapWorld");
+  const previousPinWorld = pinWorld.value;
+  const previousFilter = filter.value;
+  const previousMapWorld = mapWorld.value;
+
+  document.getElementById("worldCount").textContent = data.worlds.length;
 
   if (!data.worlds.length) {
     list.innerHTML =
@@ -403,11 +508,15 @@ const previousMapWorld = mapWorld.value;
           <span class="tag">${count} saved location(s)</span>
           <div class="actions">
             <button type="button" class="secondary"
-              data-action="copy-seed" data-id="${world.id}">
+              data-action="copy-seed" data-id="${escapeHTML(world.id)}">
               Copy Seed
             </button>
-            <button type="button" class="danger"
-              data-action="delete-world" data-id="${world.id}">
+            <button type="button" class="secondary"
+              data-action="edit-seed" data-id="${escapeHTML(world.id)}">
+              Edit Seed
+            </button>
+            <button type="button" class="danger delete-texture"
+              data-action="delete-world" data-id="${escapeHTML(world.id)}">
               Delete World
             </button>
           </div>
@@ -417,7 +526,7 @@ const previousMapWorld = mapWorld.value;
   }
 
   pinWorld.innerHTML = data.worlds.map(world =>
-    `<option value="${world.id}">${escapeHTML(world.name)}</option>`
+    `<option value="${escapeHTML(world.id)}">${escapeHTML(world.name)}</option>`
   ).join("");
 
   if (data.worlds.some(w => w.id === previousPinWorld)) {
@@ -426,7 +535,7 @@ const previousMapWorld = mapWorld.value;
  mapWorld.innerHTML =
     '<option value="">-- Choose a world --</option>' +
     data.worlds.map(world =>
-      `<option value="${world.id}">${escapeHTML(world.name)}</option>`
+      `<option value="${escapeHTML(world.id)}">${escapeHTML(world.name)}</option>`
     ).join("");
 
   if (data.worlds.some(w => w.id === previousMapWorld)) {
@@ -435,7 +544,7 @@ const previousMapWorld = mapWorld.value;
   filter.innerHTML =
     '<option value="all">All Worlds</option>' +
     data.worlds.map(world =>
-      `<option value="${world.id}">${escapeHTML(world.name)}</option>`
+      `<option value="${escapeHTML(world.id)}">${escapeHTML(world.name)}</option>`
     ).join("");
 
   if (previousFilter === "all" ||
@@ -446,6 +555,7 @@ const previousMapWorld = mapWorld.value;
 
 function renderPins() {
   const list = document.getElementById("pinList");
+  document.getElementById("pinCount").textContent = data.pins.length;
   const filter = document.getElementById("filterWorld").value;
   const query = document.getElementById("search").value
     .trim().toLowerCase();
@@ -473,9 +583,8 @@ function renderPins() {
     const coords = `${pin.x}, ${pin.y === "" ? "?" : pin.y}, ${pin.z}`;
 
     return `
-      <article class="pin-card"
-  onclick="openSeedMap(getWorld('${pin.worldId}'), ${Number(pin.x) || 0}, ${Number(pin.z) || 0})"
-  style="cursor:pointer">
+      <article class="pin-card" data-pin-id="${escapeHTML(pin.id)}" tabindex="0"
+        aria-label="Open ${escapeHTML(pin.name)} on the seed map">
         <span class="tag">${escapeHTML(pin.type)}</span>
         <h3>${escapeHTML(pin.name)}</h3>
         <p class="muted">${escapeHTML(world ? world.name : "Unknown world")}</p>
@@ -485,11 +594,12 @@ function renderPins() {
           : ""}
         <div class="actions">
           <button type="button" class="secondary"
-            data-action="copy-coords" data-id="${pin.id}">
+            data-action="copy-coords" data-id="${escapeHTML(pin.id)}">
             Copy Coordinates
           </button>
-          <button type="button" class="danger"
-            data-action="delete-pin" data-id="${pin.id}">
+          <button type="button" class="secondary" data-action="edit-pin" data-id="${escapeHTML(pin.id)}">Edit location</button>
+          <button type="button" class="danger delete-texture"
+            data-action="delete-pin" data-id="${escapeHTML(pin.id)}">
             Delete Location
           </button>
         </div>
@@ -504,7 +614,7 @@ function render() {
 
   const hasWorlds = data.worlds.length > 0;
   document.getElementById("pinForm")
-    .querySelector("button").disabled = !hasWorlds;
+    .querySelector('button[type="submit"]').disabled = !hasWorlds;
   document.getElementById("pinWorld").disabled = !hasWorlds;
 }
 
@@ -527,6 +637,8 @@ document.getElementById("worldForm")
     event.target.reset();
     render();
     document.getElementById("pinWorld").value = world.id;
+    document.getElementById("worldComposer").open = false;
+    document.getElementById("locationComposer").open = true;
     showStatus("World saved successfully.");
   });
 
@@ -540,8 +652,8 @@ document.getElementById("pinForm")
       return;
     }
 
-    data.pins.push({
-      id: makeId(),
+    const pin = {
+      id: editingPinId || makeId(),
       worldId,
       name: document.getElementById("pinName").value.trim(),
       type: document.getElementById("pinType").value,
@@ -549,12 +661,31 @@ document.getElementById("pinForm")
       y: document.getElementById("pinY").value,
       z: document.getElementById("pinZ").value,
       notes: document.getElementById("pinNotes").value.trim()
-    });
+    };
+
+    if (editingPinId) {
+      data.pins = data.pins.map(item => item.id === editingPinId ? pin : item);
+    } else {
+      data.pins.push(pin);
+    }
 
     saveData();
     event.target.reset();
+    editingPinId = null;
+    document.getElementById("savePinBtn").textContent = "Save location";
+    document.getElementById("cancelEditBtn").hidden = true;
+    document.getElementById("locationComposer").open = false;
     render();
     showStatus("Location saved successfully.");
+  });
+
+document.getElementById("cancelEditBtn")
+  .addEventListener("click", () => {
+    editingPinId = null;
+    document.getElementById("pinForm").reset();
+    document.getElementById("savePinBtn").textContent = "Save location";
+    document.getElementById("cancelEditBtn").hidden = true;
+    showStatus("Edit cancelled.");
   });
 
 document.getElementById("filterWorld")
@@ -577,18 +708,20 @@ document.getElementById("pinList").addEventListener("click", event => {
   const card = event.target.closest(".pin-card");
   if (!card) return;
 
-  selectedPinId = card.dataset.pinId;
+  const pin = data.pins.find(item => item.id === card.dataset.pinId);
+  if (pin) openSeedMap(getWorld(pin.worldId), Number(pin.x) || 0, Number(pin.z) || 0);
+});
 
-  document.querySelectorAll(".pin-card").forEach(item => {
-    item.style.borderColor =
-      item === card ? "var(--green)" : "var(--border)";
-  });
+document.getElementById("pinList").addEventListener("keydown", event => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  if (event.target.closest("button")) return;
 
-  const pin = data.pins.find(item => item.id === selectedPinId);
+  const card = event.target.closest(".pin-card");
+  if (!card) return;
 
-  if (pin) {
-    showStatus("Selected location: " + pin.name);
-  }
+  event.preventDefault();
+  const pin = data.pins.find(item => item.id === card.dataset.pinId);
+  if (pin) openSeedMap(getWorld(pin.worldId), Number(pin.x) || 0, Number(pin.z) || 0);
 });
 document.addEventListener("click", async event => {
   const button = event.target.closest("button[data-action]");
@@ -601,6 +734,19 @@ document.addEventListener("click", async event => {
     if (world) await copyText(world.seed);
   }
 
+  if (action === "edit-seed") {
+    const world = getWorld(id);
+    if (!world) return;
+
+    const seed = prompt(`Edit the seed for "${world.name}":`, world.seed);
+    if (seed === null || !seed.trim()) return;
+
+    world.seed = seed.trim();
+    saveData();
+    render();
+    showStatus(`Seed updated for ${world.name}.`);
+  }
+
   if (action === "copy-coords") {
     const pin = data.pins.find(item => item.id === id);
     if (pin) {
@@ -609,7 +755,25 @@ document.addEventListener("click", async event => {
       );
     }
   }
+if (action === "edit-pin") {
+    const pin = data.pins.find(item => item.id === id);
+    if (!pin) return;
 
+  editingPinId = pin.id;
+    document.getElementById("pinWorld").value = pin.worldId;
+    document.getElementById("pinName").value = pin.name;
+    document.getElementById("pinType").value = pin.type;
+    document.getElementById("pinX").value = pin.x;
+    document.getElementById("pinY").value = pin.y;
+    document.getElementById("pinZ").value = pin.z;
+    document.getElementById("pinNotes").value = pin.notes || "";
+    document.getElementById("savePinBtn").textContent = "Update location";
+    document.getElementById("cancelEditBtn").hidden = false;
+    document.getElementById("locationComposer").open = true;
+
+    document.getElementById("pinName").focus();
+    showStatus("Location loaded for editing: " + pin.name);
+  }
   if (action === "delete-world") {
     const world = getWorld(id);
     if (!world) return;
